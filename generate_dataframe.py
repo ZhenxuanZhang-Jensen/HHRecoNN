@@ -310,7 +310,8 @@ def load_data(inputPath,column_headers,output_dir):
 
             # Test a limited number of entries for debugging
             n_saved_entries += 1
-            if n_saved_entries > 50000:
+            # print(n_saved_entries)
+            if n_saved_entries > 500000:
                 break
 
             # Create list of indices of assigned recojets in jets list
@@ -405,6 +406,7 @@ def load_data(inputPath,column_headers,output_dir):
 
                 # Append 1 if signal, 0 if background
                 if n_jets_in_signal_pos==4:
+                    # print("only one!!!")
                     label=1
                     sphericity_correct_h.Fill(spher_)
                     jet1_pt_correct.Fill(perm_[0].LorentzVector.Pt())
@@ -564,6 +566,8 @@ def load_data(inputPath,column_headers,output_dir):
         # Normalise histograms
         for jet_hist_pair in jet_histo_pairs:
             for hist_ in jet_hist_pair:
+                if(hist_.Integral(0,hist_.GetNbinsX()+1) == 0):
+                    print(hist_)
                 hist_.Scale(1/hist_.Integral(0,hist_.GetNbinsX()+1))
         for index_ in range(0,len(jet_histo_pairs)):
             make_plot_(jet_histo_pairs[index_],axis_titles[index_],dimensions,save_titles_[index_],draw_style)
