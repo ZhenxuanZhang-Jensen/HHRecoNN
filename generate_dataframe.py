@@ -33,8 +33,8 @@ class Jet:
         self.BDisc = -99.
         self.LorentzVector = ROOT.TLorentzVector()
 
-    def SetLorentzVector(self, Pt, Eta, Phi, Energy):
-        self.LorentzVector.SetPtEtaPhiE(Pt, Eta, Phi, Energy)
+    def SetLorentzVector(self, Pt, Eta, Phi, Mass):
+        self.LorentzVector.SetPtEtaPhiM(Pt, Eta, Phi, Mass)
 
     def SetBTag(self, BDisc):
         self.BDisc = BDisc
@@ -43,56 +43,56 @@ class Event:
     """Event class has TLorentzVectors for jets and W bosons from Higgs as attributes"""
     def __init__(self,input_ttree):
         self.unique_id = uuid.uuid1()
-        self.njets = input_ttree.N_goodJets
+        self.njets = input_ttree.nGoodAK4jets
         self.gen_W_1 = ROOT.TLorentzVector()
-        self.gen_W_1.SetPtEtaPhiE(input_ttree.Leading_GEN_W_pt,input_ttree.Leading_GEN_W_eta,input_ttree.Leading_GEN_W_phi,input_ttree.Leading_GEN_W_E)
+        self.gen_W_1.SetPtEtaPhiE(input_ttree.GEN_W1_pT,input_ttree.GEN_W1_eta,input_ttree.GEN_W1_phi,input_ttree.GEN_W1_energy)
         self.gen_W_2 = ROOT.TLorentzVector()
-        self.gen_W_2.SetPtEtaPhiE(input_ttree.Subleading_GEN_W_pt,input_ttree.Subleading_GEN_W_eta,input_ttree.Subleading_GEN_W_phi,input_ttree.Subleading_GEN_W_E)
+        self.gen_W_2.SetPtEtaPhiE(input_ttree.GEN_W2_pT,input_ttree.GEN_W2_eta,input_ttree.GEN_W2_phi,input_ttree.GEN_W2_energy)
 
         self.quark0 = ROOT.TLorentzVector()
-        self.quark0.SetPtEtaPhiE(input_ttree.GEN_Quark_0_pt,input_ttree.GEN_Quark_0_eta,input_ttree.GEN_Quark_0_phi,input_ttree.GEN_Quark_0_E)
+        self.quark0.SetPtEtaPhiE(input_ttree.GEN_Q1_pT,input_ttree.GEN_Q1_eta,input_ttree.GEN_Q1_phi,input_ttree.GEN_Q1_energy)
         self.quark1 = ROOT.TLorentzVector()
-        self.quark1.SetPtEtaPhiE(input_ttree.GEN_Quark_1_pt,input_ttree.GEN_Quark_1_eta,input_ttree.GEN_Quark_1_phi,input_ttree.GEN_Quark_1_E)
+        self.quark1.SetPtEtaPhiE(input_ttree.GEN_Q2_pT,input_ttree.GEN_Q2_eta,input_ttree.GEN_Q2_phi,input_ttree.GEN_Q2_energy)
         self.quark2 = ROOT.TLorentzVector()
-        self.quark2.SetPtEtaPhiE(input_ttree.GEN_Quark_2_pt,input_ttree.GEN_Quark_2_eta,input_ttree.GEN_Quark_2_phi,input_ttree.GEN_Quark_2_E)
+        self.quark2.SetPtEtaPhiE(input_ttree.GEN_Q3_pT,input_ttree.GEN_Q3_eta,input_ttree.GEN_Q3_phi,input_ttree.GEN_Q3_energy)
         self.quark3 = ROOT.TLorentzVector()
-        self.quark3.SetPtEtaPhiE(input_ttree.GEN_Quark_3_pt,input_ttree.GEN_Quark_3_eta,input_ttree.GEN_Quark_3_phi,input_ttree.GEN_Quark_3_E)
+        self.quark3.SetPtEtaPhiE(input_ttree.GEN_Q4_pT,input_ttree.GEN_Q4_eta,input_ttree.GEN_Q4_phi,input_ttree.GEN_Q4_energy)
 
         self.jet0 = Jet()
-        self.jet0.SetLorentzVector(input_ttree.goodJets_0_pt,input_ttree.goodJets_0_eta,input_ttree.goodJets_0_phi,input_ttree.goodJets_0_E)
-        self.jet0.SetBTag(input_ttree.goodJets_0_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_0_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_0_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
+        self.jet0.SetLorentzVector(input_ttree.FullyResolved_Jet1_pt,input_ttree.FullyResolved_Jet1_eta,input_ttree.FullyResolved_Jet1_phi,input_ttree.FullyResolved_Jet1_M)
+        # self.jet0.SetBTag(input_ttree.goodJets_0_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_0_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_0_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
 
         self.jet1 = Jet()
-        self.jet1.SetLorentzVector(input_ttree.goodJets_1_pt,input_ttree.goodJets_1_eta,input_ttree.goodJets_1_phi,input_ttree.goodJets_1_E)
-        self.jet1.SetBTag(input_ttree.goodJets_1_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_1_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_1_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
+        self.jet1.SetLorentzVector(input_ttree.FullyResolved_Jet2_pt,input_ttree.FullyResolved_Jet2_eta,input_ttree.FullyResolved_Jet2_phi,input_ttree.FullyResolved_Jet2_M)
+        # self.jet1.SetBTag(input_ttree.goodJets_1_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_1_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_1_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
 
         self.jet2 = Jet()
-        self.jet2.SetLorentzVector(input_ttree.goodJets_2_pt,input_ttree.goodJets_2_eta,input_ttree.goodJets_2_phi,input_ttree.goodJets_2_E)
-        self.jet2.SetBTag(input_ttree.goodJets_2_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_2_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_2_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
+        self.jet2.SetLorentzVector(input_ttree.FullyResolved_Jet3_pt,input_ttree.FullyResolved_Jet3_eta,input_ttree.FullyResolved_Jet3_phi,input_ttree.FullyResolved_Jet3_M)
+        # self.jet2.SetBTag(input_ttree.goodJets_2_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_2_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_2_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
 
         self.jet3 = Jet()
-        self.jet3.SetLorentzVector(input_ttree.goodJets_3_pt,input_ttree.goodJets_3_eta,input_ttree.goodJets_3_phi,input_ttree.goodJets_3_E)
-        self.jet3.SetBTag(input_ttree.goodJets_3_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_3_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_3_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
+        self.jet3.SetLorentzVector(input_ttree.FullyResolved_Jet4_pt,input_ttree.FullyResolved_Jet4_eta,input_ttree.FullyResolved_Jet4_phi,input_ttree.FullyResolved_Jet4_M)
+        # self.jet3.SetBTag(input_ttree.goodJets_3_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_3_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_3_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
 
         self.jet4 = Jet()
-        self.jet4.SetLorentzVector(input_ttree.goodJets_4_pt,input_ttree.goodJets_4_eta,input_ttree.goodJets_4_phi,input_ttree.goodJets_4_E)
-        self.jet4.SetBTag(input_ttree.goodJets_4_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_4_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_4_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
+        self.jet4.SetLorentzVector(input_ttree.FullyResolved_Jet5_pt,input_ttree.FullyResolved_Jet5_eta,input_ttree.FullyResolved_Jet5_phi,input_ttree.FullyResolved_Jet5_M)
+        # self.jet4.SetBTag(input_ttree.goodJets_4_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_4_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_4_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
 
         self.jet5 = Jet()
-        self.jet5.SetLorentzVector(input_ttree.goodJets_5_pt,input_ttree.goodJets_5_eta,input_ttree.goodJets_5_phi,input_ttree.goodJets_5_E)
-        self.jet5.SetBTag(input_ttree.goodJets_5_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_5_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_5_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
+        self.jet5.SetLorentzVector(input_ttree.FullyResolved_Jet6_pt,input_ttree.FullyResolved_Jet6_eta,input_ttree.FullyResolved_Jet6_phi,input_ttree.FullyResolved_Jet6_M)
+        # self.jet5.SetBTag(input_ttree.goodJets_5_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_5_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_5_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
 
         self.jet6 = Jet()
-        self.jet6.SetLorentzVector(input_ttree.goodJets_6_pt,input_ttree.goodJets_6_eta,input_ttree.goodJets_6_phi,input_ttree.goodJets_6_E)
-        self.jet6.SetBTag(input_ttree.goodJets_6_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_6_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_6_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
+        self.jet6.SetLorentzVector(input_ttree.FullyResolved_Jet7_pt,input_ttree.FullyResolved_Jet7_eta,input_ttree.FullyResolved_Jet7_phi,input_ttree.FullyResolved_Jet7_M)
+        # self.jet6.SetBTag(input_ttree.goodJets_6_bDiscriminator_mini_pfDeepFlavourJetTags_probb + input_ttree.goodJets_6_bDiscriminator_mini_pfDeepFlavourJetTags_probbb + input_ttree.goodJets_6_bDiscriminator_mini_pfDeepFlavourJetTags_problepb)
 
-        #self.good_jet_lorentz_vectors = [self.jet0.LorentzVector,self.jet1.LorentzVector,self.jet2.LorentzVector,self.jet3.LorentzVector,self.jet4.LorentzVector,self.jet5.LorentzVector,self.jet6.LorentzVector]
+        self.good_jet_lorentz_vectors = [self.jet0.LorentzVector,self.jet1.LorentzVector,self.jet2.LorentzVector,self.jet3.LorentzVector,self.jet4.LorentzVector,self.jet5.LorentzVector,self.jet6.LorentzVector]
         self.good_jets_vector = [self.jet0,self.jet1,self.jet2,self.jet3,self.jet4,self.jet5,self.jet6]
 
         self.photon1 = ROOT.TLorentzVector()
-        self.photon1.SetPtEtaPhiE(input_ttree.Leading_Photon_pt,input_ttree.Leading_Photon_eta,input_ttree.Leading_Photon_phi,input_ttree.Leading_Photon_E)
+        self.photon1.SetPtEtaPhiE(input_ttree.pho1_pt,input_ttree.pho1_eta,input_ttree.pho1_phi,input_ttree.pho1_E)
         self.photon2 = ROOT.TLorentzVector()
-        self.photon2.SetPtEtaPhiE(input_ttree.Subleading_Photon_pt,input_ttree.Subleading_Photon_eta,input_ttree.Subleading_Photon_phi,input_ttree.Subleading_Photon_E)
+        self.photon2.SetPtEtaPhiE(input_ttree.pho2_pt,input_ttree.pho2_eta,input_ttree.pho2_phi,input_ttree.pho2_E)
     # Matrix of dR between generator quarks and 6 leading jets
     def create_dR_matrix(self):
         self.dR_matrix = np.array([
@@ -183,7 +183,7 @@ def make_plot_(histograms,axis_titles,dimensions,save_title,draw_style):
 def load_data(inputPath,column_headers,output_dir):
     # Dictionary tranlsating file names to labels
     process_filename = OrderedDict([
-        ('HH' , ['combined','GluGluToHHTo2G4Q_node_cHHH0_13TeV_HHWWggTag_1','HH',1]),
+        ('HH' , ['GluGluToRadionToHHTo2G4Q_M300','Events','HH',1]),
     ])
 
     for files in process_filename:
@@ -276,18 +276,21 @@ def load_data(inputPath,column_headers,output_dir):
         n_saved_entries = 0
         for entry in range(0,nentries):
             input_ttree.GetEntry(entry)
+
             if entry % 100 == 0:
                 print(entry)
-            if input_ttree.N_goodJets < 4 or (input_ttree.N_goodElectrons+input_ttree.N_goodMuons)>0.:
+                #already pass the ele+muon>1 events in the selection file
+            if input_ttree.nGoodAK4jets < 4 :
                 continue
             this_event = Event(input_ttree)
             event_ID = this_event.unique_id
 
-            if input_ttree.N_goodJets != 4:
-                continue
+            #if input_ttree.nGoodAK4jets != 4:
+            #    continue
 
             # Matrix of all possible dR(recojet,genQ)
             this_event.create_dR_matrix()
+
             # List of indices of dR *assigned* jet-quark pairs in dR matrix
             mindR_coordinates_ = dRmatch_qj(this_event.dR_matrix) # only 4 quarks so max entries == 4
 
@@ -295,23 +298,23 @@ def load_data(inputPath,column_headers,output_dir):
             # List of matched jet lorentz vectors
             match_ordered_jets = []
             tmp_list = []
-            # Loop over coordinates list and check if dR fulfills matching requirements
+            # Loop over assigned pairings and check if dR fulfills matching requirements
             for coords_ in mindR_coordinates_:
                 if this_event.dR_matrix.item(coords_[0],coords_[1]) <= 0.4:
                     NMatched_jets+=1
                 # Get jet object
                 match_ordered_jets.append(this_event.good_jets_vector[coords_[0]])
 
-            # Require four jets are matched to the W boson for 'good' events
+            # Require four jets are matched to the W bosons decay products for 'good' events
             nmatched_jets_h.Fill(NMatched_jets)
-            n_jets_h.Fill(input_ttree.N_goodJets)
+            n_jets_h.Fill(input_ttree.nGoodAK4jets)
             if NMatched_jets < 4:
                 continue
 
             # Test a limited number of entries for debugging
             n_saved_entries += 1
             # print(n_saved_entries)
-            if n_saved_entries > 500000:
+            if n_saved_entries > 100:
                 break
 
             # Create list of indices of assigned recojets in jets list
@@ -322,12 +325,6 @@ def load_data(inputPath,column_headers,output_dir):
             for jet_index_ in range(0,len(this_event.good_jets_vector)):
                 if jet_index_ not in matched_jet_indices:
                     match_ordered_jets.append(this_event.good_jets_vector[jet_index_])
-
-            pT_matched_jet_list = [
-            this_event.good_jets_vector[matched_jet_indices[0]].LorentzVector.Pt(),
-            this_event.good_jets_vector[matched_jet_indices[1]].LorentzVector.Pt(),
-            this_event.good_jets_vector[matched_jet_indices[2]].LorentzVector.Pt(),
-            this_event.good_jets_vector[matched_jet_indices[3]].LorentzVector.Pt()]
 
             min_dR_jet_quark.Fill(this_event.dR_matrix[mindR_coordinates_[0][0],mindR_coordinates_[0][1]])
             submin_dR_jet_quark.Fill(this_event.dR_matrix[mindR_coordinates_[1][0],mindR_coordinates_[1][1]])
@@ -353,7 +350,6 @@ def load_data(inputPath,column_headers,output_dir):
                 pt_list = []
                 # List that will be added to the dataframe if permuation deemed reasonable
                 tmp_list = []
-
                 # Check if this permutation makes sense
                 for jet_index in range(0,4):
                     pt_list.append(perm_[jet_index].LorentzVector.Pt())
@@ -403,10 +399,8 @@ def load_data(inputPath,column_headers,output_dir):
                 spher_ = sphericity(eigvals_)
                 tmp_list.append(spher_)
 
-
                 # Append 1 if signal, 0 if background
                 if n_jets_in_signal_pos==4:
-                    # print("only one!!!")
                     label=1
                     sphericity_correct_h.Fill(spher_)
                     jet1_pt_correct.Fill(perm_[0].LorentzVector.Pt())
@@ -464,14 +458,14 @@ def load_data(inputPath,column_headers,output_dir):
                 if label==1:
                     n_signal_perms+=1
 
-                if label == 0:
-                    print('Matched jets pt: %s , %s , %s , %s' % (match_ordered_jets[0].LorentzVector.Pt(), match_ordered_jets[1].LorentzVector.Pt(), match_ordered_jets[2].LorentzVector.Pt(), match_ordered_jets[3].LorentzVector.Pt()))
-                    print("Perm jet 0 pt = %s, Perm jet 1 pt = %s, Perm jet 2 pt = %s, Perm jet 3 pt = %s" % (perm_[0].LorentzVector.Pt(), perm_[1].LorentzVector.Pt(), perm_[2].LorentzVector.Pt(), perm_[3].LorentzVector.Pt()))
-                    print("Signal/background: ", label)
+                #if label == 0:
+                #    print('Matched jets pt: %s , %s , %s , %s' % (match_ordered_jets[0].LorentzVector.Pt(), match_ordered_jets[1].LorentzVector.Pt(), match_ordered_jets[2].LorentzVector.Pt(), match_ordered_jets[3].LorentzVector.Pt()))
+                #    print("Perm jet 0 pt = %s, Perm jet 1 pt = %s, Perm jet 2 pt = %s, Perm jet 3 pt = %s" % (perm_[0].LorentzVector.Pt(), perm_[1].LorentzVector.Pt(), perm_[2].LorentzVector.Pt(), perm_[3].LorentzVector.Pt()))
+                #    print("Signal/background: ", label)
 
                 tmp_list.append(label)
                 tmp_list.append(event_ID)
-                tmp_list.append(input_ttree.N_goodJets)
+                tmp_list.append(input_ttree.nGoodAK4jets)
                 perm_index += 1
                 data.append(tmp_list)
                 good_perm_count_ += 1
@@ -566,8 +560,6 @@ def load_data(inputPath,column_headers,output_dir):
         # Normalise histograms
         for jet_hist_pair in jet_histo_pairs:
             for hist_ in jet_hist_pair:
-                if(hist_.Integral(0,hist_.GetNbinsX()+1) == 0):
-                    print(hist_)
                 hist_.Scale(1/hist_.Integral(0,hist_.GetNbinsX()+1))
         for index_ in range(0,len(jet_histo_pairs)):
             make_plot_(jet_histo_pairs[index_],axis_titles[index_],dimensions,save_titles_[index_],draw_style)
@@ -717,7 +709,7 @@ def load_data(inputPath,column_headers,output_dir):
         save_title = os.path.join(output_dir,"N_reco_jets.png")
         draw_style = "HIST"
         make_plot_(histograms,axis_titles,dimensions,save_title,draw_style)
-
+ 
         input_ttree.Delete()
         tfile.Close()
 
