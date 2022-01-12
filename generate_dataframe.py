@@ -55,7 +55,7 @@ class Event:
         self.quark1.SetPtEtaPhiE(input_ttree.GEN_Quark_1_pt,input_ttree.GEN_Quark_1_eta,input_ttree.GEN_Quark_1_phi,input_ttree.GEN_Quark_1_E)
         self.quark2 = ROOT.TLorentzVector()
         self.quark2.SetPtEtaPhiE(input_ttree.GEN_Quark_2_pt,input_ttree.GEN_Quark_2_eta,input_ttree.GEN_Quark_2_phi,input_ttree.GEN_Quark_2_E)
-        self.quark3 = ROOT.TLorentzVector()
+        self.quark3 = ROOT.TLorentzVector()adsf
         self.quark3.SetPtEtaPhiE(input_ttree.GEN_Quark_3_pt,input_ttree.GEN_Quark_3_eta,input_ttree.GEN_Quark_3_phi,input_ttree.GEN_Quark_3_E)
 
         self.jet0 = Jet()
