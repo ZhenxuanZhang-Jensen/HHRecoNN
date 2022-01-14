@@ -16,7 +16,7 @@ subfile_tree = inputTree.CloneTree(0)
 print("Events per file: ", events_per_file)
 
 n_entries_in_batch = 0
-for entry in xrange(0,nentries):
+for entry in range(0,nentries):
     inputTree.GetEntry(entry)
     n_entries_in_batch+=1
     if n_entries_in_batch<events_per_file:
