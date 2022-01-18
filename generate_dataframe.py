@@ -460,7 +460,7 @@ def load_data(inputPath,column_headers,output_dir):
                     jet4_btag_correct.Fill(perm_[3].BDisc)
                 else:
                     if(input_ttree.nGoodAK4jets == 4):
-                        print("what the fuck???")
+                        print("what???")
                         print("perm1:",perm_[0].LorentzVector.Pt()) 
                         print( "matched1:",match_ordered_jets[0].LorentzVector.Pt())
                         print("perm2:",perm_[1].LorentzVector.Pt()) 
