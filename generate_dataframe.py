@@ -15,6 +15,7 @@
 # To do:
 #   Should make signal any event with all four dR matched jets in the first 4 positions?
 
+from nis import match
 import optparse, json, argparse, math, os, pickle, uuid
 import numpy as np
 from numpy import linalg
@@ -149,7 +150,7 @@ def sphericity(eigvals):
     # Definition: http://sro.sussex.ac.uk/id/eprint/44644/1/art%253A10.1007%252FJHEP06%25282010%2529038.pdf
     spher_ = 2*eigvals[0] / (eigvals[1]+eigvals[0])
     return spher_
-
+    
 def make_plot_(histograms,axis_titles,dimensions,save_title,draw_style):
     c1 = ROOT.TCanvas('c1',',1000,1000')
     p1 = ROOT.TPad('p1','p1',0.0,0.0,1.0,1.0)
@@ -274,6 +275,8 @@ def load_data(inputPath,column_headers,output_dir):
         n_jets_h = ROOT.TH1F('n_jets_h', '# reco jets', 10,0,10)
         data = []
         n_saved_entries = 0
+        notfour = 0
+        four = 0
         for entry in range(0,nentries):
             input_ttree.GetEntry(entry)
 
@@ -298,18 +301,30 @@ def load_data(inputPath,column_headers,output_dir):
             # List of matched jet lorentz vectors
             match_ordered_jets = []
             tmp_list = []
+            #debug
+            # for i in range(7):
+            #     print("i:",i,this_event.good_jets_vector[i].LorentzVector.Pt())
+            #---------#
             # Loop over assigned pairings and check if dR fulfills matching requirements
             for coords_ in mindR_coordinates_:
                 if this_event.dR_matrix.item(coords_[0],coords_[1]) <= 0.4:
-                    NMatched_jets+=1
+                    NMatched_jets += 1
                 # Get jet object
                 match_ordered_jets.append(this_event.good_jets_vector[coords_[0]])
-
+            #debug
+            # for i in range(len(match_ordered_jets)):
+            #     print("i:",i,match_ordered_jets[i].LorentzVector.Pt())
+            #---------#
             # Require four jets are matched to the W bosons decay products for 'good' events
             nmatched_jets_h.Fill(NMatched_jets)
             n_jets_h.Fill(input_ttree.nGoodAK4jets)
             if NMatched_jets < 4:
                 continue
+            # if(input_ttree.nGoodAK4jets == 4):
+            #     print( "matched1:",match_ordered_jets[0].LorentzVector.Pt())
+            #     print( "matched2:",match_ordered_jets[1].LorentzVector.Pt())
+            #     print( "matched3:",match_ordered_jets[2].LorentzVector.Pt())
+            #     print( "matched4:",match_ordered_jets[3].LorentzVector.Pt())
 
             # Test a limited number of entries for debugging
             n_saved_entries += 1
@@ -326,6 +341,8 @@ def load_data(inputPath,column_headers,output_dir):
                 if jet_index_ not in matched_jet_indices:
                     match_ordered_jets.append(this_event.good_jets_vector[jet_index_])
 
+            # if(input_ttree.nGoodAK4jets ==4):
+            #     print("matched[4]=",match_ordered_jets[5].LorentzVector.Pt())
             min_dR_jet_quark.Fill(this_event.dR_matrix[mindR_coordinates_[0][0],mindR_coordinates_[0][1]])
             submin_dR_jet_quark.Fill(this_event.dR_matrix[mindR_coordinates_[1][0],mindR_coordinates_[1][1]])
             thirdmin_dR_jet_quark.Fill(this_event.dR_matrix[mindR_coordinates_[2][0],mindR_coordinates_[2][1]])
@@ -336,8 +353,14 @@ def load_data(inputPath,column_headers,output_dir):
             ptjet_of_thirdmin_dR_pair.Fill(this_event.good_jets_vector[matched_jet_indices[2]].LorentzVector.Pt() )
             ptjet_of_fourthmin_dR_pair.Fill(this_event.good_jets_vector[matched_jet_indices[3]].LorentzVector.Pt() )
 
+            # if(input_ttree.nGoodAK4jets == 4):
+            #     print("len of matched jets:", len(match_ordered_jets))
             # Get list of all permutations for list of the jet's Lorentz vectors
             permutations_list = list(permutations(match_ordered_jets,len(match_ordered_jets)))
+            if(len(match_ordered_jets) != 7):
+                print("len perm:",len(match_ordered_jets))
+            # if(input_ttree.nGoodAK4jets == 4):
+            #     print("len of good jets:", len(permutations_list))
             # print("list pt:", permutations_list[0].LorentzVector.Pt())
             perm_index = 0
             n_signal_perms = 0
@@ -345,6 +368,7 @@ def load_data(inputPath,column_headers,output_dir):
             good_perm_count_ = 0
             # Look at all possible permutations
             for perm_ in permutations_list:
+                print("perm list:",len(permutations_list))
                 # variables used to reject 'bad' permutations
                 is_good_perm = 1
                 pt_list = []
@@ -354,8 +378,8 @@ def load_data(inputPath,column_headers,output_dir):
                 for jet_index in range(0,4):
                     pt_list.append(perm_[jet_index].LorentzVector.Pt())
                     # print("pt:",perm_[jet_index].LorentzVector.Pt())
-                    if (perm_[jet_index].LorentzVector.Pt() >= 800 or perm_[jet_index].LorentzVector.Pt() == 1.000000e+11 or perm_[jet_index].LorentzVector.Pt() == 99):
-                        print("pt:",perm_[jet_index].LorentzVector.Pt())
+                    if (perm_[jet_index].LorentzVector.Pt() >= 900):
+                        # print("pt:",perm_[jet_index].LorentzVector.Pt())
                         # Reject permutation: non-existent jet was permuted into first 4 jet positions
                         is_good_perm = 0
                 # Reject permutation if the permutation is just of the additional (>4) jets
@@ -363,7 +387,6 @@ def load_data(inputPath,column_headers,output_dir):
                     is_good_perm = 0
                 else:
                     fourjet_pt_list.append(pt_list)
-
                 if is_good_perm == 0:
                     # Reject bad/pointless permutation
                     continue
@@ -408,7 +431,7 @@ def load_data(inputPath,column_headers,output_dir):
 
                 # Append 1 if signal, 0 if background
                 # print("n:",n_jets_in_signal_pos)
-                if n_jets_in_signal_pos==4:
+                if n_jets_in_signal_pos>=4:
                     label=1
                     sphericity_correct_h.Fill(spher_)
                     jet1_pt_correct.Fill(perm_[0].LorentzVector.Pt())
@@ -436,6 +459,16 @@ def load_data(inputPath,column_headers,output_dir):
                     jet3_btag_correct.Fill(perm_[2].BDisc)
                     jet4_btag_correct.Fill(perm_[3].BDisc)
                 else:
+                    if(input_ttree.nGoodAK4jets == 4):
+                        print("what the fuck???")
+                        print("perm1:",perm_[0].LorentzVector.Pt()) 
+                        print( "matched1:",match_ordered_jets[0].LorentzVector.Pt())
+                        print("perm2:",perm_[1].LorentzVector.Pt()) 
+                        print( "matched2:",match_ordered_jets[1].LorentzVector.Pt())
+                        print("perm3:",perm_[2].LorentzVector.Pt()) 
+                        print( "matched3:",match_ordered_jets[2].LorentzVector.Pt())
+                        print("perm4:",perm_[3].LorentzVector.Pt()) 
+                        print( "matched4:",match_ordered_jets[3].LorentzVector.Pt())
                     label=0
                     # print("label=0")
                     sphericity_incorrect_h.Fill(spher_)
@@ -479,16 +512,25 @@ def load_data(inputPath,column_headers,output_dir):
                 data.append(tmp_list)
                 good_perm_count_ += 1
 
-            # Control histograms
+                # Control histograms
+                # debug:
+            if(input_ttree.nGoodAK4jets == 4 and n_signal_perms != 24):
+                print("!=4,perms:", n_signal_perms)
+                notfour+=1
+            else:
+                four += 1
+            # print('N Matched jets: ' , NMatched_jets)
             # print('N ordered jets: ', len(match_ordered_jets))
             # print('N jets: ' , input_ttree.nGoodAK4jets)
             # print('N perms: ' , len(permutations_list))
             # print('N good perms: ',good_perm_count_)
             # print('N siganl perms: ', n_signal_perms)
+            # print("AK4 jet length:",)
+            #---------------#
             W1_eta_phi_h.Fill(this_event.gen_W_1.Eta(), this_event.gen_W_1.Phi())
             W2_eta_phi_h.Fill(this_event.gen_W_2.Eta(), this_event.gen_W_2.Phi())
             j1_eta_phi_h.Fill(this_event.jet0.LorentzVector.Eta(), this_event.jet0.LorentzVector.Phi())
-
+        # print("four / notfour+four percent:", four/(four+notfour))
         kin_file_name = os.path.join(output_dir,"kinematics_file.root")
         kinematics_file = ROOT.TFile(kin_file_name,"recreate")
 
