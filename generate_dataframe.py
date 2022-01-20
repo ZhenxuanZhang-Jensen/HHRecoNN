@@ -15,8 +15,9 @@
 # To do:
 #   Should make signal any event with all four dR matched jets in the first 4 positions?
 
-from nis import match
+
 import optparse, json, argparse, math, os, pickle, uuid
+from sys import path_importer_cache
 import numpy as np
 from numpy import linalg
 import pandas as pd
@@ -365,28 +366,75 @@ def load_data(inputPath,column_headers,output_dir):
             perm_index = 0
             n_signal_perms = 0
             fourjet_pt_list = []
+            fourjet_perm_list = []
             good_perm_count_ = 0
+            debugindex = 0
+            #debug
+            # if(input_ttree.nGoodAK4jets==4):
+            #     for perm_ in permutations_list:
+            #         is_good_perm = 1
+            #         pt_list = []
+            #         perm_list = []
+            #         # List that will be added to the dataframe if permuation deemed reasonable
+            #         tmp_list = []
+            #         # Check if this permutation makes sense
+            #         for jet_index in range(0,4):
+            #             pt_list.append(perm_[jet_index].LorentzVector.Pt())
+            #             perm_list.append(perm_[jet_index])
+            #             # print("pt:",perm_[jet_index].LorentzVector.Pt())
+            #             if (perm_[jet_index].LorentzVector.Pt() >= 900):
+            #                 # print("pt:",perm_[jet_index].LorentzVector.Pt())
+            #                 # Reject permutation: non-existent jet was permuted into first 4 jet positions
+            #                 is_good_perm = 0
+            #         if is_good_perm == 0:
+            #             # Reject bad/pointless permutation
+            #             continue
+            #         # Reject permutation if the permutation is just of the additional (>4) jets
+            #         # pt_array = np.array(pt_list)
+            #         if perm_list in fourjet_perm_list:
+            #             # if(input_ttree.nGoodAK4jets == 4 and (pt_array>=800).sum() <1):
+            #             is_good_perm = 0
+            #         else:
+            #             fourjet_perm_list.append(perm_list)
+            #             fourjet_pt_list.append(pt_list)
+            #         if is_good_perm == 0:
+            #             # Reject bad/pointless permutation
+            #             continue
+            #         debugindex += 1
+            # if(input_ttree.nGoodAK4jets==4):
+            #     if(debugindex<24):
+            #         print(match_ordered_jets[0].LorentzVector.Pt(),match_ordered_jets[1].LorentzVector.Pt(),match_ordered_jets[2].LorentzVector.Pt(),match_ordered_jets[3].LorentzVector.Pt(),match_ordered_jets[4].LorentzVector.Pt(),match_ordered_jets[5].LorentzVector.Pt())
+            #         print("pass the condition:",debugindex)
+            #--------------#
             # Look at all possible permutations
             for perm_ in permutations_list:
-                print("perm list:",len(permutations_list))
-                # variables used to reject 'bad' permutations
+                perm_list = []
                 is_good_perm = 1
                 pt_list = []
+                # variables used to reject 'bad' permutations
                 # List that will be added to the dataframe if permuation deemed reasonable
                 tmp_list = []
                 # Check if this permutation makes sense
                 for jet_index in range(0,4):
+                    perm_list.append(perm_[jet_index])
                     pt_list.append(perm_[jet_index].LorentzVector.Pt())
                     # print("pt:",perm_[jet_index].LorentzVector.Pt())
                     if (perm_[jet_index].LorentzVector.Pt() >= 900):
                         # print("pt:",perm_[jet_index].LorentzVector.Pt())
                         # Reject permutation: non-existent jet was permuted into first 4 jet positions
                         is_good_perm = 0
+                if is_good_perm == 0:
+                    # Reject bad/pointless permutation
+                    continue
                 # Reject permutation if the permutation is just of the additional (>4) jets
-                if pt_list in fourjet_pt_list:
+                # pt_array = np.array(pt_list)
+                if perm_list in fourjet_perm_list:
+                    # if(input_ttree.nGoodAK4jets == 4 and (pt_array>=800).sum() <1):
                     is_good_perm = 0
                 else:
+                    fourjet_perm_list.append(perm_list)
                     fourjet_pt_list.append(pt_list)
+
                 if is_good_perm == 0:
                     # Reject bad/pointless permutation
                     continue
@@ -459,16 +507,6 @@ def load_data(inputPath,column_headers,output_dir):
                     jet3_btag_correct.Fill(perm_[2].BDisc)
                     jet4_btag_correct.Fill(perm_[3].BDisc)
                 else:
-                    if(input_ttree.nGoodAK4jets == 4):
-                        print("what???")
-                        print("perm1:",perm_[0].LorentzVector.Pt()) 
-                        print( "matched1:",match_ordered_jets[0].LorentzVector.Pt())
-                        print("perm2:",perm_[1].LorentzVector.Pt()) 
-                        print( "matched2:",match_ordered_jets[1].LorentzVector.Pt())
-                        print("perm3:",perm_[2].LorentzVector.Pt()) 
-                        print( "matched3:",match_ordered_jets[2].LorentzVector.Pt())
-                        print("perm4:",perm_[3].LorentzVector.Pt()) 
-                        print( "matched4:",match_ordered_jets[3].LorentzVector.Pt())
                     label=0
                     # print("label=0")
                     sphericity_incorrect_h.Fill(spher_)
@@ -516,7 +554,8 @@ def load_data(inputPath,column_headers,output_dir):
                 # debug:
             if(input_ttree.nGoodAK4jets == 4 and n_signal_perms != 24):
                 print("!=4,perms:", n_signal_perms)
-                notfour+=1
+                # print(pt_list)
+                # notfour+=1
             else:
                 four += 1
             # print('N Matched jets: ' , NMatched_jets)
