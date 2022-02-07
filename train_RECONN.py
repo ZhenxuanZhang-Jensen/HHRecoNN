@@ -14,12 +14,18 @@ from random import randint
 from os import environ
 os.environ['KERAS_BACKEND'] = 'tensorflow'
 import keras
-from keras import backend as K
-from keras.models import Sequential
-from keras.layers.core import Dense
-from keras.layers.core import Activation
-from keras.optimizers import Nadam
-from keras.callbacks import EarlyStopping
+# from keras import backend as K
+# from keras.models import Sequential
+# from keras.layers.core import Dense
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Activation
+# from keras.layers.core import Activation
+from tensorflow.keras.optimizers import Nadam
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import Sequential
+from tensorflow.keras import backend as k
+tf.compat.v1.disable_eager_execution()
+print(tf.compat.v1.get_default_graph())
 
 def compile_model(num_variables,learn_rate=0.001):
     model = Sequential()
@@ -191,6 +197,8 @@ def main():
                     if truth_label_of_max_score == 1 :
                         correct_4jet_predictions += 1
                     else:
+                        print("evaluation ID:", evaluation_IDs_[evID_index])
+                        print("truth label:",truth_label_of_max_score)
                         incorrect_4jet_predictions += 1
                 if event_njets[evID_index-1] == 5:
                     N_5jet_examples+=1
