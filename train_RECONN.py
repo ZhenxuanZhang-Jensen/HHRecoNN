@@ -24,6 +24,7 @@ from tensorflow.keras.optimizers import Nadam
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import backend as k
+from tensorflow.keras.models import load_model
 tf.compat.v1.disable_eager_execution()
 print(tf.compat.v1.get_default_graph())
 
@@ -57,10 +58,12 @@ def main():
     parser.add_argument('-i', '--input_dataframe', dest='input_dataframe', help='Path to input dataframe', default='', type=str)
     parser.add_argument('-o', '--outputs', dest='outputdir', help='Name of output directory', default='test', type=str)
     parser.add_argument('-f', '--fit_model', dest='fit_model', help='Flag: 0 to evaluate a pre-existing model,  1 to fit a new model', default=1, type=int)
+    parser.add_argument('-l', '--load_model_option', dest='load_model_option', help='Option to load full model (\'m\') or from weights file (\'w\')', default='m', type=str)
     args = parser.parse_args()
     input_dataframe = args.input_dataframe
     outputdir = args.outputdir
     fit_model = args.fit_model
+    load_model_option = args.load_model_option
     # Make instance of plotter tool
     Plotter = plotter()
 
@@ -76,7 +79,7 @@ def main():
     input_columns_training = event_data.columns[:-3]
     #column_headers = ['HW1_jet1_pt','HW1_jet1_eta','HW1_jet1_phi','HW1_jet1_E','HW1_jet2_pt','HW1_jet2_eta','HW1_jet2_phi','HW1_jet2_E','HW1_jet3_pt','HW1_jet3_eta','HW1_jet3_phi','HW1_jet3_E','HW1_jet4_pt','HW1_jet4_eta','HW1_jet4_phi','HW1_jet4_E','target']
     #column_headers = ['HW1_jet1_pt','HW1_jet1_eta','dRj1_photon1','dRj1_photon2','HW1_jet2_pt','HW1_jet2_eta','dRj2_photon1','dRj2_photon2','HW1_jet3_pt','HW1_jet3_eta','dRj3_photon1','dRj3_photon2','HW1_jet4_pt','HW1_jet4_eta','dRj4_photon1','dRj4_photon2','target','event_ID']
-    model_output = os.path.join(outputdir,'model/')
+    model_output = os.path.join(outputdir,'model')
     if fit_model == 1:
         traindataset, valdataset = train_test_split(event_data, test_size=0.1)
         print('Using columns: ', input_columns_training.values)
@@ -116,7 +119,7 @@ def main():
         history_ = model.fit(train_input_,train_target_,validation_split=0.1,class_weight=class_weights,epochs=200,batch_size=512,verbose=1,shuffle=True,callbacks=[early_stopping_monitor])
 
         # Store model in file
-        model_output_name = os.path.join(model_output)
+        model_output_name = os.path.join(model_output,'model.h5')
         model.save(model_output_name)
         weights_output_name = os.path.join(model_output,'model_weights.h5')
         model.save_weights(weights_output_name)
@@ -149,8 +152,13 @@ def main():
         Plotter.binary_overfitting(model, train_target_, test_target_, train_pred_, test_pred_, train_weights, test_weights)
         Plotter.save_plots(dir=Plotter.plots_directory, filename='response.png')
     elif fit_model == 0:
-        model_name = os.path.join(model_output)
-        model = keras.models.load_model(model_name)
+        if(load_model_option == 'm'):
+            model_name = os.path.join(model_output,'model.pb')
+            model = keras.models.load_model(model_name)
+        if(load_model_option == 'w'):
+            model = compile_model(len(input_columns_training), learn_rate=0.001)
+            model_weights_name = os.path.join(model_output,'model_weights.h5')
+            model.load_weights(model_weights_name)
         evaluation_inputs_ = event_data[input_columns_training].values
         evaluation_targets_ = event_data['target'].values
         evaluation_IDs_ = event_data['event_ID'].values
@@ -177,18 +185,18 @@ def main():
             if evID_index == 0:
                 previous_evID = evaluation_IDs_[evID_index]
 
-            if event_njets[evID_index] == 4 and evaluation_targets_[evID_index] == 0:
-                print('WARNING: 4 jet event with target label == 0 ')
-                print('Event: ', evaluation_IDs_[evID_index-1])
-                print('NJets: ', event_njets[evID_index-1])
-                print('Target label: ', evaluation_targets_[evID_index-1])
-
             # Elif same event ID as previous event
             elif evaluation_IDs_[evID_index] == previous_evID:
                 # If prediction has largest response so far
                 if predictions_[evID_index] > max_DNN_score:
                     max_DNN_score = predictions_[evID_index]
                     truth_label_of_max_score = evaluation_targets_[evID_index]
+
+                    # if event_njets[evID_index] == 4 and evaluation_IDs_[evID_index] == '74e758c2-7d1f-11ec-88f3-f40343b21c30':
+                    #     print('EventID: ', evaluation_IDs_[evID_index])
+                    #     print('NJets: ', event_njets[evID_index])
+                    #     print('Target label: ', evaluation_targets_[evID_index])
+                    #     print("truth label:",truth_label_of_max_score)
 
             # Else we check the result for the previous event and start a new event
             elif evaluation_IDs_[evID_index] != previous_evID:
@@ -197,7 +205,8 @@ def main():
                     if truth_label_of_max_score == 1 :
                         correct_4jet_predictions += 1
                     else:
-                        print("evaluation ID:", evaluation_IDs_[evID_index])
+                        print('WARNING: 4 jet event with target label == 0 ')
+                        print("evaluation ID:", evaluation_IDs_[evID_index-1])
                         print("truth label:",truth_label_of_max_score)
                         incorrect_4jet_predictions += 1
                 if event_njets[evID_index-1] == 5:
@@ -219,7 +228,8 @@ def main():
                 else:
                     incorrect_predictions += 1
                 previous_evID = evaluation_IDs_[evID_index]
-                max_DNN_score = predictions_[evID_index]
+                max_DNN_score = -9
+                # max_DNN_score = predictions_[evID_index]
 
         print('Dataset contained %s 4-jet, %s 5-jet, %s 6-jet events' %(N_4jet_examples,N_5jet_examples,N_6jet_examples))
         print('# 4-jet correct: %s, # 4-jet incorrect: %s (%s percent)' % (correct_4jet_predictions,incorrect_4jet_predictions,(correct_4jet_predictions/(correct_4jet_predictions+incorrect_4jet_predictions))))
